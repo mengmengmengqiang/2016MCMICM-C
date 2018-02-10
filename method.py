@@ -308,16 +308,19 @@ def K_Means( df, K ):
 
 
 def zscore( X ):
+    """
+    z-score标准化
+    :param X: numpy 数组
+    :return: numpy 数组
+    """
     data = X
     # 计算每一行的标准差
     data_std = np.std(data, axis=1)
     # 计算每一行的均值
     data_mean = np.mean(data, axis=1)
     # (data - data_mean)/data_std
-    # 依列减去均值,再除以标准差
-    for i in range(0, data.shape[1]):
-        data[:, i] = data[:, i] - data_mean
-        data[:, i] = np.multiply(data[:, i], data_std.T)
+    # 转换成矩阵直接运算
+    data = np.array((np.mat(data) - np.mat(data_mean).T)/np.mat(data_std).T)
     return data
 
 
@@ -375,18 +378,13 @@ def pca_analyze( df ):
     Ratio = pca.explained_variance_ratio_
     # 计算标准化指标变量 zscore分析法
     X_X = zscore(X)
-    # X_X * T * Ratio
+    # X_X * Te * Ratio
 
-    # 依行相乘
-    y1 = X_X * Te[0, :].T
-    y2 = X_X * Te[1, :].T
-    # 最终评估结果, 每一行未相加
-    Z = y1 * Ratio[0] + y2 * Ratio[1]
-    # 计算每一行的和
-    R = np.sum(Z, axis=1)
+    # 转换成矩阵直接运算
+    Z = np.mat(X_X) * np.mat(Te).T * np.mat(Ratio).T
 
     # 保存进dataFrame里
-    df['PCA'] = R
+    df['PCA'] = np.array(Z)
 
     return df
 
